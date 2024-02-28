@@ -42,7 +42,9 @@ export function useLogin() {
   const { trigger: login, isMutating } = useSWRMutation(
     cacheKey,
     async (url: string, { arg }: { arg: string }) => {
-      const { token, user }: { token: string; user: User } = await axios.post(
+      const {
+        data: { token, user },
+      }: { data: { token: string; user: User } } = await axios.post(
         `${cacheKey}/login`,
         { id: arg }
       );
