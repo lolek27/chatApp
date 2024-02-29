@@ -1,23 +1,32 @@
-import { useAuth } from "../context/AuthContext";
+import { useLoggedAuth } from "../context/AuthContext";
 import {
   Channel,
   ChannelHeader,
   ChannelList,
+  ChannelListMessengerProps,
   Chat,
   LoadingIndicator,
   MessageInput,
   MessageList,
   Window,
 } from "stream-chat-react";
+import Button from "../shared/Button";
+import { useNavigate } from "react-router-dom";
+import ChatChannelButton from "../components/ChatChannelButton";
+import { useCallback } from "react";
 
 const Home = () => {
-  const { loggedUser, streamChat } = useAuth();
+  const { loggedUser, streamChat } = useLoggedAuth();
   if (streamChat == null) {
     return <LoadingIndicator />;
   }
   return (
     <Chat client={streamChat}>
-      <ChannelList />
+      <ChannelList
+        List={Channels}
+        sendChannelsToList
+        filters={{ members: { $in: [loggedUser.id] } }}
+      />
       <Channel>
         <Window>
           <ChannelHeader />
@@ -30,3 +39,27 @@ const Home = () => {
 };
 
 export default Home;
+
+function Channels({ loadedChannels }: ChannelListMessengerProps) {
+  const navigate = useNavigate();
+  const { logout, isLoggingOut } = useLoggedAuth();
+  const handleLogout = useCallback(async () => {
+    await logout();
+    navigate("/login");
+  }, [logout, navigate]);
+  const channelsAvailable = !!loadedChannels && loadedChannels?.length > 0;
+  return (
+    <div className="w-60 h-full flex flex-col gap-4 m-3">
+      <Button onClick={() => navigate("/channel/new")}>New Chat</Button>
+      {channelsAvailable
+        ? loadedChannels.map((channel) => (
+            <ChatChannelButton channel={channel} />
+          ))
+        : "No Conversations"}
+      <hr className="border-slate-400 mt-auto" />
+      <Button onClick={handleLogout} disabled={isLoggingOut}>
+        Log Out
+      </Button>
+    </div>
+  );
+}

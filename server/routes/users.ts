@@ -7,6 +7,8 @@ const streamChat = StreamChat.getInstance(
   process.env.STREAM_API_PRIVATE_KEY!
 );
 
+const TOKEN_USER_ID_MAP = new Map<string, string>();
+
 router.route("/").get(async (req, res) => {
   res.status(200).send("All users ok!");
 });
@@ -43,10 +45,25 @@ router.route("/login").post<{ Body: { id: string } }>(async (req, res) => {
   }
   const token = streamChat.createToken(id);
   const { name, image } = user;
+  TOKEN_USER_ID_MAP.set(token, user.id);
   res.status(200).json({
     token,
     user: { id: user.id, name, image },
   });
+});
+
+router.route("/logout").post<{ Body: { token: string } }>(async (req, res) => {
+  const token = req.body.token;
+  if (!token) {
+    res.status(400).send();
+  }
+
+  const id: string | undefined = TOKEN_USER_ID_MAP.get(token);
+  if (!id) return res.status(400).send();
+
+  await streamChat.revokeUserToken(id, new Date());
+  TOKEN_USER_ID_MAP.delete(token);
+  res.status(200).send();
 });
 
 export default router;
