@@ -18,7 +18,11 @@ import { useCallback } from "react";
 const Home = () => {
   const { loggedUser, streamChat } = useLoggedAuth();
   if (streamChat == null) {
-    return <LoadingIndicator />;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <LoadingIndicator color=" rgb(219 39 119)" size={40} />
+      </div>
+    );
   }
   return (
     <Chat client={streamChat}>

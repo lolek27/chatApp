@@ -6,10 +6,15 @@ import { AuthContextWrapper } from "./context/AuthContext";
 import RootLayout from "./pages/layouts/RootLayout";
 import Home from "./pages/Home";
 import NewChannel from "./pages/channel/New";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 export const router = createBrowserRouter([
   {
-    element: <AuthContextWrapper />,
+    element: (
+      <ErrorBoundary>
+        <AuthContextWrapper />
+      </ErrorBoundary>
+    ),
     children: [
       {
         element: <RootLayout />,
@@ -18,7 +23,12 @@ export const router = createBrowserRouter([
           { index: true, element: <Home /> },
           {
             path: "/channel",
-            children: [{ path: "new", element: <NewChannel /> }],
+            children: [
+              {
+                path: "new",
+                element: <NewChannel />,
+              },
+            ],
           },
         ],
       },
@@ -30,5 +40,6 @@ export const router = createBrowserRouter([
         ],
       },
     ],
+    errorElement: <div>Sorry, this path could not be displayed.</div>,
   },
 ]);

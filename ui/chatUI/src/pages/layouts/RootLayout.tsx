@@ -3,7 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 
 const RootLayout = () => {
   const { loggedUser } = useAuth();
-  if (!loggedUser) <Navigate to="/login" />;
+  if (!loggedUser) return <Navigate to="/login" />;
 
   return <Outlet />;
 };

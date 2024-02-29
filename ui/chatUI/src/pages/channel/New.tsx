@@ -15,6 +15,65 @@ type newChanelMutationProps = {
 };
 
 const NewChannel = () => {
+  const {
+    handleSubmit,
+    isLoading,
+    usersError,
+    users,
+    isCreating,
+    nameRef,
+    imageRef,
+    membersRef,
+  } = useHooks();
+
+  const memberSelection = usersError ? (
+    <div className="text-red-700">Could not load users</div>
+  ) : (
+    users && (
+      <Select
+        ref={membersRef}
+        id="members"
+        required
+        isMulti
+        classNames={{ container: () => "w-full" }}
+        isLoading={isLoading}
+        options={users!.users!.map((u) => ({
+          value: u.id,
+          label: u.name || u.id,
+        }))}
+      />
+    )
+  );
+  return (
+    <Card>
+      <Card.Body>
+        <h1 className="text-2xl text-pink-600 font-bold mb-7 text-center">
+          New Chat
+        </h1>
+        <form
+          onSubmit={handleSubmit}
+          className="grid gap-y-5 gap-x-4 grid-cols-[auto,1fr] justify-items-en items-center">
+          <label htmlFor="name">Name</label>
+          <Input name="username" required ref={nameRef} />
+          <label htmlFor="image">Image URL</label>
+          <Input name="image" ref={imageRef} />
+          <label htmlFor="members">Members</label>
+          {memberSelection}
+          <Button type="submit" className="col-span-full" disabled={isCreating}>
+            {isCreating ? "Logging..." : "Create"}
+          </Button>
+        </form>
+      </Card.Body>
+      <Card.CardFooter>
+        <Link to="/">Back</Link>
+      </Card.CardFooter>
+    </Card>
+  );
+};
+
+export default NewChannel;
+
+function useHooks() {
   const { streamChat, loggedUser } = useLoggedAuth();
   const { trigger: createChannel, isMutating: isCreating } = useSWRMutation(
     "newChannel",
@@ -38,12 +97,8 @@ const NewChannel = () => {
     isLoading,
     error,
     data: users,
-  } = useSWR(
-    "stream users",
-    () => streamChat!.queryUsers({ id: { $ne: loggedUser.id } }, { name: 1 }),
-    {
-      isPaused: () => streamChat != null,
-    }
+  } = useSWR("stream users", () =>
+    streamChat!.queryUsers({ id: { $ne: loggedUser.id } }, { name: 1 })
   );
 
   const handleSubmit = (e: FormEvent) => {
@@ -60,47 +115,15 @@ const NewChannel = () => {
       memberIds: selectOptions!.map((so) => so.value),
     });
   };
-  const memberSelection = error ? (
-    <div className="text-red-700">Could not load users</div>
-  ) : (
-    <Select
-      ref={membersRef}
-      id="members"
-      required
-      isMulti
-      classNames={{ container: () => "w-full" }}
-      isLoading={isLoading}
-      options={users!.users!.map((u) => ({
-        value: u.id,
-        label: u.name || u.id,
-      }))}
-    />
-  );
-  return (
-    <Card>
-      <Card.Body>
-        <h1 className="text-2xl text-pink-600 font-bold mb-7 text-center">
-          New Chat
-        </h1>
-        <form
-          onSubmit={handleSubmit}
-          className="grid gap-y-5 gap-x-4 grid-cols-[auto,1fr] justify-items-en items-center">
-          <label htmlFor="name">Name</label>
-          <Input name="username" required ref={nameRef} />
-          <label htmlFor="image">Image URL</label>
-          <Input name="image" ref={imageRef} />
-          <label htmlFor="members">Members</label>
-          {memberSelection}
-          <Button type="submit" className="col-span-full" disabled={isCreating}>
-            {isCreating ? "Logging..." : "Sign In"}
-          </Button>
-        </form>
-      </Card.Body>
-      <Card.CardFooter>
-        <Link to="/">Back</Link>
-      </Card.CardFooter>
-    </Card>
-  );
-};
 
-export default NewChannel;
+  return {
+    handleSubmit,
+    isLoading,
+    usersError: error,
+    users,
+    isCreating,
+    nameRef,
+    imageRef,
+    membersRef,
+  };
+}

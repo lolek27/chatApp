@@ -40,8 +40,8 @@ router.route("/login").post<{ Body: { id: string } }>(async (req, res) => {
   const {
     users: [user],
   } = await streamChat.queryUsers({ id });
-  if (user === null) {
-    return res.status(401).send();
+  if (!user) {
+    return res.status(401).send("No user found.");
   }
   const token = streamChat.createToken(id);
   const { name, image } = user;
