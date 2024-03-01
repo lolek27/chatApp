@@ -14,6 +14,7 @@ import Button from "../shared/Button";
 import { useNavigate } from "react-router-dom";
 import ChatChannelButton from "../components/ChatChannelButton";
 import { useCallback } from "react";
+import Feedback from "../components/Feedback";
 
 const Home = () => {
   const { loggedUser, streamChat } = useLoggedAuth();
@@ -61,6 +62,7 @@ function Channels({ loadedChannels }: ChannelListMessengerProps) {
           ))
         : "No Conversations"}
       <hr className="border-slate-400 mt-auto" />
+      <Feedback />
       <Button onClick={handleLogout} disabled={isLoggingOut}>
         Log Out
       </Button>
