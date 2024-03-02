@@ -66,4 +66,12 @@ router.route("/logout").post<{ Body: { token: string } }>(async (req, res) => {
   res.status(200).send();
 });
 
+router
+  .route("/feedback")
+  .post<{ Body: { feedback: string; title?: string } }>(async (req, res) => {
+    const { feedback, title } = req.body;
+    console.log(feedback, title);
+    res.status(200).send();
+  });
+
 export default router;

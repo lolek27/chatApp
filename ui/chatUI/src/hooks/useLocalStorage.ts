@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 
 export function useLocalStorage<T>(
   key: string,
-  defaultValue?: T | undefined | (() => T | undefined)
+  defaultValue?: T | undefined | (() => T | undefined),
+  storage?: Storage
 ) {
+  const storageObject = storage || localStorage;
   const [value, setValue] = useState<T | undefined>(() => {
-    const value = localStorage.getItem(key);
+    const value = storageObject.getItem(key);
     if (!value) {
       let initValue;
       if (typeof defaultValue === "function") {
@@ -20,11 +22,11 @@ export function useLocalStorage<T>(
 
   useEffect(() => {
     if (value === undefined) {
-      localStorage.removeItem(key);
+      storageObject.removeItem(key);
     } else {
-      localStorage.setItem(key, JSON.stringify(value));
+      storageObject.setItem(key, JSON.stringify(value));
     }
-  }, [key, value]);
+  }, [key, value, storageObject]);
 
   return [value, setValue] as [T | undefined, typeof setValue];
 }
